@@ -1,0 +1,18 @@
+Function 'main'
+Lines executed:100.00% of 49
+No branches
+Calls executed:100.00% of 12
+
+Function 'determineSpeed'
+Lines executed:100.00% of 40
+Branches executed:100.00% of 46
+Taken at least once:93.48% of 46
+No calls
+
+File 'collision_avoidance_sample.c'
+Lines executed:100.00% of 89
+Branches executed:100.00% of 46
+Taken at least once:93.48% of 46
+Calls executed:100.00% of 12
+Creating 'collision_avoidance_sample.c.gcov'
+
