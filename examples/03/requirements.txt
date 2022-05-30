@@ -1,0 +1,30 @@
+Functional Requirements: Traffic controller
+1. The traffic controller is for 4-way drive ways
+a. There are two traffic signal boards, one is for North-South direction, the other is for East-West
+direction
+2. A signal board provides three-color traffic lights, green, yellow, and red
+a. There can be additional light for left turn (green ‘-> ‘ sign)
+3. The initial color of signal is red
+4. When the controller is turned on, both signal board illuminate red light for 3 seconds
+5. After 3 seconds from initial state, the North-South board stays in red while the East-West board illuminates
+green light
+6. The change of colors shall follow the order
+a. Green -> yellow -> red -> green -> …
+b. Red -> green -> yellow -> red -> …
+7. Except for the initial 3 seconds in red, the time to be spent for each color is as follows
+a. Green: 10 seconds
+b. Yellow: 2 seconds
+c. Red: 12 seconds
+8. When off signal is received, both signal board illuminates red light for 3 seconds and turned off
+9. (Optional) Left turn signal is included
+a. After 5 seconds of green light, both green and left-turn sign shall be illuminated for 5 seconds
+To do
+1. Model the requirements in Finite State Machine
+2. Write a NuSMV model from the FSM
+3. Generate test cases from the NuSMV using state coverage criteria
+Submit
+1. FSM model (Graphical)
+2. NuSMV model
+3. Test cases and coverage analysis report
+4. (Optional) prove that your model does not allow NS green and EW green at the same time
+Due: 2022.05.31
