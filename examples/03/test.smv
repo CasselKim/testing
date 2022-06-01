@@ -1,0 +1,157 @@
+MODULE main
+
+VAR
+	req_on : boolean;
+	req_off : boolean;
+	NS_mutex : boolean;
+	EW_mutex : boolean;
+	NS : process NS(NS_mutex, EW_mutex, req_on, req_off);
+	EW : process EW(NS_mutex, EW_mutex, req_on, req_off);
+	
+ASSIGN
+	init(req_on) := FALSE;
+	init(req_off) := FALSE;
+	init(NS_mutex) := FALSE;
+	init(EW_mutex) := FALSE;
+	
+	
+	
+MODULE NS (NS_mutex, EW_mutex, req_on, req_off)
+
+VAR
+Time : 0..99;
+Ready : 0..99;
+Stop : boolean;
+Left : boolean;
+Turn_on : boolean;
+State : {off, red, yellow, green};
+
+ASSIGN
+	init(State) := off;
+	next(State) :=
+		case
+			State = off & Turn_on : red;
+			State = red & 12<=Time : yellow;
+			State = yellow & 2<=Time & Stop : red;
+			State = yellow & 2<=Time & !Stop & !EW_mutex : green;
+			State = green & 10<=Time : red;
+			State != off & !Turn_on : red;
+			State = red & !Turn_on & 3<=Ready : off;
+			TRUE : State;
+		esac;
+
+	next(NS_mutex) := 
+		case
+			State = green & !EW_mutex : TRUE;
+			State != green : FALSE;
+			TRUE : NS_mutex;
+		esac;
+		
+	init(Left) := FALSE;
+	next(Left) :=
+		case
+			State = green & 5>=Time : TRUE;
+			State = green & 10>=Time : FALSE;
+			TRUE : Left;
+		esac;
+	
+	init(Stop) := FALSE;
+	next(Stop) :=
+		case
+			State = green : TRUE;
+			State = red : FALSE;
+			TRUE : Stop;
+		esac;
+		
+	init(Ready) := 0;
+	next(Ready) :=
+		case
+			Ready >= 4 : 0;
+			State = red & !Turn_on : Ready+1;
+			TRUE : 0;
+		esac;
+		
+	init(Time) := 0;
+	next(Time) :=
+		case
+			State = off : 0;
+			State = red & Time >= 15 : 3;
+			State = yellow & Time >= 5 : 3;
+			State = green & Time >= 13 : 3;
+			Turn_on : Time+1;
+			TRUE : Time;
+		esac;
+SPEC AG(req_on -> AF(Turn_on = TRUE))
+SPEC AG(req_off -> AF(Turn_on = FALSE))
+	
+	
+MODULE EW (NS_mutex, EW_mutex, req_on, req_off)
+
+VAR
+Time : 0..99;
+Ready : 0..99;
+Stop : boolean;
+Left : boolean;
+Turn_on : boolean;
+State : {off, red, yellow, green};
+
+ASSIGN
+	init(State) := off;
+	next(State) :=
+		case
+			State = off & Turn_on : green;
+			State = red & 12<=Time : yellow;
+			State = yellow & 2<=Time & Stop : red;
+			State = yellow & 2<=Time & !Stop & !EW_mutex : green;
+			State = green & 10<=Time : red;
+			State != off & !Turn_on : red;
+			State = red & !Turn_on & 3<=Ready : off;
+			TRUE : State;
+		esac;
+
+	next(NS_mutex) := 
+		case
+			State = green & !EW_mutex : TRUE;
+			State != green : FALSE;
+			TRUE : NS_mutex;
+		esac;
+		
+	init(Left) := FALSE;
+	next(Left) :=
+		case
+			State = green & 5<=Time : TRUE;
+			State = green & 10<=Time : FALSE;
+			TRUE : Left;
+		esac;
+	
+	init(Stop) := FALSE;
+	next(Stop) :=
+		case
+			State = green : TRUE;
+			State = red : FALSE;
+			TRUE : Stop;
+		esac;
+		
+	init(Ready) := 0;
+	next(Ready) :=
+		case
+			Ready >= 4 : 0;
+			State = red & !Turn_on : Ready+1;
+			TRUE : 0;
+		esac;
+		
+	init(Time) := 0;
+	next(Time) :=
+		case
+			State = off : 0;
+			State = red & Time >= 12 : 0;
+			State = yellow & Time >= 2 : 0;
+			State = green & Time >= 10 : 0;
+			Turn_on : Time+1;
+			TRUE : Time;
+		esac;		
+SPEC AG(req_on -> AF(Turn_on = TRUE))
+SPEC AG(req_off -> AF(Turn_on = FALSE))
+	
+	
+	
